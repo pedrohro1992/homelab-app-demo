@@ -1,0 +1,28 @@
+apiVersion: security.platform.io/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: nginx-deployment-external-secret
+  namespace: nginx-apps
+spec:
+  policy: |
+    path "kv/data/app-teste/secret-secreto" {
+      capabilities = ["read"]
+    }
+  vaultPolicyName: nginx-deployment-external-secret-policy
+---
+apiVersion: security.platform.io/v1alpha1
+kind: VaultKubernetesRoleBinding
+metadata:
+  name: nginx-deployment-external-secret
+  namespace: nginx-apps
+spec:
+  audience: vault
+  authMount: kubernetes
+  boundNamespaces:
+    - nginx-apps
+  boundServiceAccounts:
+    - nginx-deployment-external-secret
+  roleName: nginx-deployment-external-secret
+  tokenPolicies:
+    - nginx-deployment-external-secret-policy
+  tokenTTL: 1h

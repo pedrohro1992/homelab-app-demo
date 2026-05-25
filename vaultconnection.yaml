@@ -1,0 +1,14 @@
+apiVersion: security.platform.io/v1alpha1
+kind: VaultConnection
+metadata:
+  name: nginx-deployment-external-secret
+  namespace: nginx-apps
+spec:
+  vaultUrl: http://172.18.0.12:8200
+  authPath: kubernetes
+  mountPath: kv
+  vaultRole: nginx-deployment-external-secret
+  serviceAccountName: "nginx-deployment-external-secret"
+  vaultStringPath: app-teste/secret-secreto
+  audience:
+    - vault

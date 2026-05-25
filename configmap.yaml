@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-html-template
+  namespace: nginx-apps
+data:
+  # Usamos o formato de template que a imagem do nginx injeta automaticamente
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Componente NGINX - Variáveis do ExternalSecret</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background-fcolor: #f4f6f9; }
+            table { border-collapse: collapse; width: 100%; background: white; }
+            th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+            th { background-color: #4CAF50; color: white; }
+        </style>
+    </head>
+    <body>
+        <h2>Variáveis de Ambiente Injetadas pelo Secret (1 a N)</h2>
+        <p>Abaixo estão listadas as chaves extraídas dinamicamente do path:</p>
+        <table>
+            <tr>
+                <th>Variável (Chave do Secret)</th>
+                <th>Valor Exposto</th>
+            </tr>
+            @LINHAS_DA_TABELA@
+        </table>
+    </body>
+    </html>

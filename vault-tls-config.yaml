@@ -1,0 +1,37 @@
+apiVersion: security.platform.io/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: nginx-deployment-tls
+  namespace: nginx-apps
+spec:
+  policy: |
+    path "pki*" {
+      capabilities = ["read", "list"]
+    }
+    path "pki/roles/internal-dot-infra" {
+      capabilities = ["create", "update"]
+    }
+    path "pki/sign/internal-dot-infra" {
+      capabilities = ["create", "update"]
+    }
+    path "pki/issue/internal-dot-infra" {
+      capabilities = ["create"]
+    }
+  vaultPolicyName: nginx-deployment-tls-policy
+---
+apiVersion: security.platform.io/v1alpha1
+kind: VaultKubernetesRoleBinding
+metadata:
+  name: nginx-deployment-tls
+  namespace: nginx-apps
+spec:
+  audience: vault://nginx-apps/nginx-deployment-tls
+  authMount: kubernetes
+  boundNamespaces:
+    - nginx-apps
+  boundServiceAccounts:
+    - nginx-deployment-tls
+  roleName: nginx-deployment-tls-role
+  tokenPolicies:
+    - nginx-deployment-tls-policy
+  tokenTTL: 1h

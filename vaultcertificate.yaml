@@ -1,0 +1,17 @@
+apiVersion: security.platform.io/v1alpha1
+kind: VaultCertificate
+metadata:
+  name: nginx-deployment-tls
+  namespace: nginx-apps
+spec:
+  vaultUrl: http://172.18.0.12:8200
+  authPath: /v1/auth/kubernetes
+  vaultRole: nginx-deployment-tls-role
+  pkiPath: pki/sign/internal-dot-infra
+  commonName: my-app.internal.infra
+  dnsNames:
+    - my-app.internal.infra
+    - my-app-teste.internal.infra
+  SecretName: nginx-deployment-tls
+  certManagerServiceAccount: "cert-manager"
+  certManagerNamespace: "cert-manager"

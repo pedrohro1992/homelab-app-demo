@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: nginx-apps
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: nginx-deployment-external-secretvault-scret
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              # Aguarda o configmap estar disponível no path temporário
+              mkdir -p /usr/share/nginx/html
+
+              # Gera as linhas da tabela baseadas em todas as ENVs disponíveis (exceto as padrão do k8s se quiser filtrar)
+              LINHAS=""
+              for var in $(env); do
+                KEY=$(echo $var | cut -f1 -d=)
+                VAL=$(echo $var | cut -f2- -d=)
+                # Opcional: Filtrar para mostrar apenas chaves relevantes do seu path
+                LINHAS="$LINHAS<tr><td><strong>$KEY</strong></td><td>$VAL</td></tr>"
+              done
+
+              # Copia o template do ConfigMap substituindo a tag pelas linhas geradas dinamicamente
+              sed "s|@LINHAS_DA_TABELA@|$LINHAS|g" /tmp/template/index.html > /usr/share/nginx/html/index.html
+
+              # Inicia o nginx normalmente
+              exec nginx -g 'daemon off;'
+          volumeMounts:
+            - name: html-volume
+              mountPath: /tmp/template
+      volumes:
+        - name: html-volume
+          configMap:
+            name: nginx-html-template
